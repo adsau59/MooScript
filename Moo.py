@@ -15,11 +15,11 @@ Options:
 """
 
 from docopt import docopt
-
-arg = docopt(__doc__)
 from pynput import keyboard as kb
 from playsound import playsound
 import time
+
+arg = docopt(__doc__)
 
 print("""Controls
 f10: reset text
@@ -30,38 +30,31 @@ Go to the chat box,
 press f10 then type,
 then press f11""")
 
+# initializing gloabal variables
 recordText = True
-
 pause = False
-
 text = ""
-
 keyboard = kb.Controller()
-
 start = arg["--start"] if arg["--start"] is not None else ""
 middle = arg["--mid"]
 end = arg["--end"] if arg["--end"] is not None else ""
 TIME_DELAY = int(arg["--timeDelay"]) if arg["--timeDelay"] is not None else 0.01
 
-"""
-records the text typed
-"""
-
 
 def pressButton(key):
+    """types the key"""
     global keyboard
     keyboard.press(key)
     time.sleep(TIME_DELAY)
     keyboard.release(key)
 
 
-"""
-Processes text
-Erases the text then re types it
-"""
-
-
 def eraseAndType():
+    """
+    Processes text
+    Erases the text then re types it
+    :return: None
+    """
     global keyboard, text, recordText, arg, start, middle, end, n, smWord
 
     mooWordsLen = []
@@ -109,12 +102,8 @@ def eraseAndType():
     pressButton(kb.Key.enter)
 
 
-"""
-Key press callback
-"""
-
-
 def on_press(key):
+    """Key press callback"""
     global text, recordText, pause
     try:
         if key == kb.Key.f10:
@@ -132,7 +121,7 @@ def on_press(key):
                     text = ""
                     recordText = False
 
-            if recordText:
+            if recordText and key.char is not None:
                 text += key.char
                 if len(text) > 160:
                     text = ""
@@ -149,7 +138,7 @@ def on_press(key):
                 if key == kb.Key.backspace:
                     text = text[:-1]
 
+
 # Collect events until released
-with kb.Listener(
-        on_press=on_press) as listener:
+with kb.Listener(on_press=on_press) as listener:
     listener.join()
